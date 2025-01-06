@@ -1,1 +1,1 @@
-# Lecturer Grading System.
+# lecturer-grading
