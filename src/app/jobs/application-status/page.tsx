@@ -115,7 +115,7 @@ const ApplicationStatus = () => {
                     </p>
                     <p className="text-lg text-gray-600">
                       You have not applied for any job yet. <br />
-                      <Link href="/jobs/alljobs">
+                      <Link href="#">
                         <Button className="mt-4">View Jobs</Button>
                       </Link>
                     </p>

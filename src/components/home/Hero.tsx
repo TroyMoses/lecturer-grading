@@ -16,14 +16,14 @@ const Hero = () => {
     return null;
   }
 
-  const isAdmin = user?.publicMetadata?.role === "admin";
-  const isCommissioner = user?.publicMetadata?.role === "commissioner";
-  const isCAO = user?.publicMetadata?.role === "cao";
-  const isTechnical = user?.publicMetadata?.role === "technical";
+  // const isAdmin = user?.publicMetadata?.role === "admin";
+  // const isCommissioner = user?.publicMetadata?.role === "commissioner";
+  // const isCAO = user?.publicMetadata?.role === "cao";
+  // const isTechnical = user?.publicMetadata?.role === "technical";
 
-  if (isAdmin || isCommissioner || isCAO || isTechnical) {
-    router.push("/dashboard/home");
-  }
+  // if (isAdmin || isCommissioner || isCAO || isTechnical) {
+  //   router.push("/dashboard/home");
+  // }
 
   return (
     <div className="pt-[5rem] pb-[3rem]">
@@ -39,17 +39,8 @@ const Hero = () => {
               className="w-[10%] h-[10%] rounded-full"
             />
             <h3 className="text-[16px] sm:text-[16px] text-center lg:text-[16px] text-[#05264e] leading-[3rem] lg:leading-[4rem] font-extrabold">
-              Kakumiro District Local Government <br />
-              e-Human Resource Management System <span className="text-red-600" >(e-HRMS)</span>
-
+              Lecturer Grading System
             </h3>
-            <h3 className="text-[20px] sm:text-[18px] text-center lg:text-[18px] text-red-600 leading-[3rem] lg:leading-[4rem] font-extrabold">
-              RESTRICTED FOR INTERNAL ADVERT ONLY
-            </h3>
-            <h4 className="text-[16px] sm:text-[16px] lg:text-[16px] text-[#05264e] leading-[3rem]">
-              Application Guidelines
-            </h4>
-            <ApplicationGuidelines />
           </div>
         </div>
       </div>

@@ -12,8 +12,8 @@ const font = Plus_Jakarta_Sans({
   subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Kakumiro District Local Government EHRMS",
-  description: "A place to jobs and applications",
+  title: "Lecturer Grading System",
+  description: "Assign lecturers on merit",
 };
 
 export default function RootLayout({
