@@ -25,7 +25,7 @@ http.route({
       switch (result.type) {
         case "user.created":
           await ctx.runMutation(internal.users.createUser, {
-            tokenIdentifier: `https://trusty-earwig-14.clerk.accounts.dev|${result.data.id}`,
+            tokenIdentifier: `https://winning-sculpin-54.clerk.accounts.dev|${result.data.id}`,
             name: `${result.data.first_name ?? ""} ${
               result.data.last_name ?? ""
             }`,
@@ -34,7 +34,7 @@ http.route({
           break;
         case "user.updated":
           await ctx.runMutation(internal.users.updateUser, {
-            tokenIdentifier: `https://trusty-earwig-14.clerk.accounts.dev|${result.data.id}`,
+            tokenIdentifier: `https://winning-sculpin-54.clerk.accounts.dev|${result.data.id}`,
             name: `${result.data.first_name ?? ""} ${
               result.data.last_name ?? ""
             }`,
