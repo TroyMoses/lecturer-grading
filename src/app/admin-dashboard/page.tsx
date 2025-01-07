@@ -11,8 +11,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Label } from "@/components/ui/label";
 import { PlusCircle } from 'lucide-react';
-import { useToast } from "@/components/ui/use-toast";
 import { Id } from "../../../convex/_generated/dataModel";
+import { useToast } from "@/hooks/use-toast";
 
 export default function AdminDashboard() {
   const { toast } = useToast();
@@ -56,7 +56,7 @@ export default function AdminDashboard() {
       toast({
         title: "Subjects Added",
         description: "The subjects have been successfully added.",
-        variant: "success",
+        variant: "default",
       });
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {

@@ -18,7 +18,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 export default function LecturerDashboard() {
   const { toast } = useToast();
@@ -118,7 +118,7 @@ export default function LecturerDashboard() {
       toast({
         title: "Profile Created",
         description: "Your profile has been successfully created.",
-        variant: "success",
+        variant: "default",
       });
 
       setFormData({
