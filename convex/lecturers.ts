@@ -34,7 +34,7 @@ export const createLecturer = mutation({
 
 export const updateLecturer = mutation({
   args: {
-    id: v.id("lecturers"),
+    _id: v.id("lecturers"),
     name: v.string(),
     qualification: v.string(),
     experience: v.string(),
@@ -43,7 +43,7 @@ export const updateLecturer = mutation({
   },
   handler: async (ctx, args) => {
     const averageWeight = calculateAverageWeight(args.qualification, args.experience, args.publications);
-    return await ctx.db.patch(args.id, { ...args, averageWeight });
+    return await ctx.db.patch(args._id, { ...args, averageWeight });
   },
 });
 

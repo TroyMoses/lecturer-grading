@@ -21,8 +21,8 @@ export default function RootLayout({
         className={`${inter.className} min-h-screen bg-background font-sans antialiased`}
       >
         <ConvexClientProvider>
-        {children}
         <Toaster />
+        {children}
         </ConvexClientProvider>
       </body>
     </html>

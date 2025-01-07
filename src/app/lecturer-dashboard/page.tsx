@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import { useUser } from "@clerk/nextjs";
 import { UserButton } from "@clerk/nextjs";
@@ -7,32 +7,41 @@ import { api } from "../../../convex/_generated/api";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 
 export default function LecturerDashboard() {
   const { toast } = useToast();
   const { user } = useUser();
-  const lecturer = useQuery(api.lecturers.getLecturer, { userId: user?.id ?? "" });
+  const lecturer = useQuery(api.lecturers.getLecturer, {
+    userId: user?.id ?? "",
+  });
   const createLecturer = useMutation(api.lecturers.createLecturer);
   const updateLecturer = useMutation(api.lecturers.updateLecturer);
-  const subjects = useQuery(api.subjects.getAllSubjects);
-
-  console.log("Subjects: ", subjects);
+  const subjects = useQuery(api.subjects.getAllSubjects, {});
 
   const [formData, setFormData] = useState({
     name: "",
     qualification: "",
     experience: "",
     publications: "",
-    subjects: [],
+    subjects: [] as string[],
   });
 
-  const [currentSemester, setCurrentSemester] = useState({ year: 1, semester: 1 });
+  const [currentSemester, setCurrentSemester] = useState({
+    year: 1,
+    semester: 1,
+  });
 
   useEffect(() => {
     if (lecturer) {
@@ -49,44 +58,82 @@ export default function LecturerDashboard() {
   useEffect(() => {
     // In a real application, you would fetch the current semester and year from the server
     // For now, we'll just set it manually
-    setCurrentSemester({ year: 1, semester: 2 });
+    setCurrentSemester({ year: 1, semester: 1 });
   }, []);
 
   const handleInputChange = (name: string, value: string) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubjectChange = (value: string[]) => {
-    setFormData((prev) => ({ ...prev, subjects: value }));
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     try {
-      if (lecturer) {
-        await updateLecturer({
-          id: lecturer._id,
-          ...formData,
-        });
-        toast({
-          title: "Profile Updated",
-          description: "Your profile has been successfully updated.",
-        });
-      } else {
-        await createLecturer({
-          ...formData,
-          userId: user?.id ?? "",
-        });
-        toast({
-          title: "Profile Created",
-          description: "Your profile has been successfully created.",
-        });
-      }
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      //   if (lecturer) {
+      //     // Payload for update: exclude userId
+      //     const updatePayload = {
+      //       _id: lecturer._id,
+      //       name: formData.name,
+      //       qualification: formData.qualification,
+      //       experience: formData.experience,
+      //       publications: formData.publications,
+      //       subjects: formData.subjects,
+      //     };
+
+      //     console.log("Update Payload:", updatePayload);
+      //     const response = await updateLecturer(updatePayload);
+      //     console.log("Update Response:", response);
+
+      //     toast({
+      //       title: "Profile Updated",
+      //       description: "Your profile has been successfully updated.",
+      //       variant: "success",
+      //     });
+      //   } else {
+      //     // Payload for create: include userId
+      //     const createPayload = {
+      //       ...formData,
+      //       userId: user?.id ?? "",
+      //     };
+
+      //     console.log("Create Payload:", createPayload);
+      //     const response = await createLecturer(createPayload);
+      //     console.log("Create Response:", response);
+
+      //     toast({
+      //       title: "Profile Created",
+      //       description: "Your profile has been successfully created.",
+      //       variant: "success",
+      //     });
+      //   }
+
+      // Reset the form after successful submission
+
+      const createPayload = {
+        ...formData,
+        userId: user?.id ?? "",
+      };
+
+      await createLecturer(createPayload);
+
+      toast({
+        title: "Profile Created",
+        description: "Your profile has been successfully created.",
+        variant: "success",
+      });
+
+      setFormData({
+        name: "",
+        qualification: "",
+        experience: "",
+        publications: "",
+        subjects: [],
+      });
     } catch (error) {
+      console.error("Error submitting form:", error);
       toast({
         title: "Error",
-        description: "Failed to update profile. Please try again.",
+        description: "Failed to submit form. Check console for details.",
         variant: "destructive",
       });
     }
@@ -101,7 +148,9 @@ export default function LecturerDashboard() {
         </div>
       </nav>
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <h2 className="text-xl font-semibold mb-4">Welcome, {user?.firstName}!</h2>
+        <h2 className="text-xl font-semibold mb-4">
+          Welcome, {user?.firstName}!
+        </h2>
         <Alert>
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Current Academic Period</AlertTitle>
@@ -128,7 +177,9 @@ export default function LecturerDashboard() {
                 <Label htmlFor="qualification">Qualification</Label>
                 <Select
                   value={formData.qualification}
-                  onValueChange={(value) => handleInputChange("qualification", value)}
+                  onValueChange={(value) =>
+                    handleInputChange("qualification", value)
+                  }
                 >
                   <SelectTrigger id="qualification">
                     <SelectValue placeholder="Select Qualification" />
@@ -145,7 +196,9 @@ export default function LecturerDashboard() {
                 <Label htmlFor="experience">Experience</Label>
                 <Select
                   value={formData.experience}
-                  onValueChange={(value) => handleInputChange("experience", value)}
+                  onValueChange={(value) =>
+                    handleInputChange("experience", value)
+                  }
                 >
                   <SelectTrigger id="experience">
                     <SelectValue placeholder="Select Experience" />
@@ -153,7 +206,9 @@ export default function LecturerDashboard() {
                   <SelectContent>
                     <SelectItem value="0-5 years">0-5 years</SelectItem>
                     <SelectItem value="6-10 years">6-10 years</SelectItem>
-                    <SelectItem value="Above 10 years">Above 10 years</SelectItem>
+                    <SelectItem value="Above 10 years">
+                      Above 10 years
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -161,7 +216,9 @@ export default function LecturerDashboard() {
                 <Label htmlFor="publications">Publications</Label>
                 <Select
                   value={formData.publications}
-                  onValueChange={(value) => handleInputChange("publications", value)}
+                  onValueChange={(value) =>
+                    handleInputChange("publications", value)
+                  }
                 >
                   <SelectTrigger id="publications">
                     <SelectValue placeholder="Select Publications" />
@@ -174,25 +231,61 @@ export default function LecturerDashboard() {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="subjects">Subjects (Choose up to 5 in order of priority)</Label>
-                <Select
-                  value={formData.subjects}
-                  onValueChange={handleSubjectChange}
-                  multiple
-                >
-                  <SelectTrigger id="subjects">
-                    <SelectValue placeholder="Select Subjects" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {subjects?.filter(subject => subject.year === currentSemester.year && subject.semester === currentSemester.semester).map((subject) => (
-                      <SelectItem key={subject._id} value={subject.name}>
-                        {subject.name}
-                      </SelectItem>
+                <Label htmlFor="subjects">
+                  Subjects (Choose up to 5 in order of priority)
+                </Label>
+                <div className="space-y-1">
+                  {subjects
+                    ?.filter(
+                      (subject) =>
+                        subject.year === currentSemester.year &&
+                        subject.semester === currentSemester.semester
+                    )
+                    .map((subject) => (
+                      <div
+                        key={subject._id}
+                        className="flex items-center space-x-2"
+                      >
+                        <input
+                          type="checkbox"
+                          id={`subject-${subject._id}`}
+                          value={subject.name}
+                          checked={formData.subjects.includes(subject.name)}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            setFormData((prev) => {
+                              if (e.target.checked) {
+                                // Add subject
+                                return {
+                                  ...prev,
+                                  subjects: [...prev.subjects, value].slice(
+                                    0,
+                                    5
+                                  ), // Limit to 5
+                                };
+                              } else {
+                                // Remove subject
+                                return {
+                                  ...prev,
+                                  subjects: prev.subjects.filter(
+                                    (subj) => subj !== value
+                                  ),
+                                };
+                              }
+                            });
+                          }}
+                        />
+                        <label htmlFor={`subject-${subject._id}`}>
+                          {subject.name}
+                        </label>
+                      </div>
                     ))}
-                  </SelectContent>
-                </Select>
-                <p className="text-sm text-muted-foreground">Hold Ctrl (Windows) or Cmd (Mac) to select multiple subjects</p>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Select up to 5 subjects.
+                </p>
               </div>
+
               <Button type="submit">Save Profile</Button>
             </form>
           </CardContent>
@@ -201,4 +294,3 @@ export default function LecturerDashboard() {
     </div>
   );
 }
-

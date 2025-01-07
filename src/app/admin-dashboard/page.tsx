@@ -16,8 +16,8 @@ import { Id } from "../../../convex/_generated/dataModel";
 
 export default function AdminDashboard() {
   const { toast } = useToast();
-  const lecturers = useQuery(api.lecturers.getAllLecturers);
-  const subjects = useQuery(api.subjects.getAllSubjects);
+  const lecturers = useQuery(api.lecturers.getAllLecturers,{});
+  const subjects = useQuery(api.subjects.getAllSubjects, {});
   const createSubjects = useMutation(api.subjects.createSubjects);
   const assignSubject = useMutation(api.subjects.assignSubject);
 
@@ -56,6 +56,7 @@ export default function AdminDashboard() {
       toast({
         title: "Subjects Added",
         description: "The subjects have been successfully added.",
+        variant: "success",
       });
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
@@ -187,7 +188,7 @@ export default function AdminDashboard() {
                     <TableCell>{lecturer.publications}</TableCell>
                     <TableCell>{lecturer.averageWeight.toFixed(2)}</TableCell>
                     <TableCell>
-                      <Select onValueChange={(value) => handleAssign(lecturer._id, value)}>
+                      <Select onValueChange={(value) => handleAssign(lecturer._id, value as Id<"subjects">)}>
                         <SelectTrigger>
                           <SelectValue placeholder="Assign Subject" />
                         </SelectTrigger>
