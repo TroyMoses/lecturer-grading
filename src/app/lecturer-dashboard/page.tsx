@@ -5,20 +5,34 @@ import { UserButton } from "@clerk/nextjs";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { AlertCircle } from 'lucide-react';
+import { useToast } from "@/components/ui/use-toast";
 
 export default function LecturerDashboard() {
+  const { toast } = useToast();
   const { user } = useUser();
   const lecturer = useQuery(api.lecturers.getLecturer, { userId: user?.id ?? "" });
   const createLecturer = useMutation(api.lecturers.createLecturer);
   const updateLecturer = useMutation(api.lecturers.updateLecturer);
+  const subjects = useQuery(api.subjects.getAllSubjects);
+
+  console.log("Subjects: ", subjects);
 
   const [formData, setFormData] = useState({
     name: "",
     qualification: "",
     experience: "",
     publications: "",
-    subjects: ["", "", "", "", ""],
+    subjects: [],
   });
+
+  const [currentSemester, setCurrentSemester] = useState({ year: 1, semester: 1 });
 
   useEffect(() => {
     if (lecturer) {
@@ -32,38 +46,55 @@ export default function LecturerDashboard() {
     }
   }, [lecturer]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
+  useEffect(() => {
+    // In a real application, you would fetch the current semester and year from the server
+    // For now, we'll just set it manually
+    setCurrentSemester({ year: 1, semester: 2 });
+  }, []);
+
+  const handleInputChange = (name: string, value: string) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubjectChange = (index: number, value: string) => {
-    setFormData((prev) => {
-      const newSubjects = [...prev.subjects];
-      newSubjects[index] = value;
-      return { ...prev, subjects: newSubjects };
-    });
+  const handleSubjectChange = (value: string[]) => {
+    setFormData((prev) => ({ ...prev, subjects: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (lecturer) {
-      await updateLecturer({
-        id: lecturer._id,
-        ...formData,
-      });
-    } else {
-      await createLecturer({
-        ...formData,
-        userId: user?.id ?? "",
+    try {
+      if (lecturer) {
+        await updateLecturer({
+          id: lecturer._id,
+          ...formData,
+        });
+        toast({
+          title: "Profile Updated",
+          description: "Your profile has been successfully updated.",
+        });
+      } else {
+        await createLecturer({
+          ...formData,
+          userId: user?.id ?? "",
+        });
+        toast({
+          title: "Profile Created",
+          description: "Your profile has been successfully created.",
+        });
+      }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update profile. Please try again.",
+        variant: "destructive",
       });
     }
-    alert("Profile updated successfully!");
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <nav className="bg-white shadow-sm">
+    <div className="min-h-screen bg-background">
+      <nav className="border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
           <h1 className="text-2xl font-semibold">Lecturer Dashboard</h1>
           <UserButton afterSignOutUrl="/" />
@@ -71,99 +102,101 @@ export default function LecturerDashboard() {
       </nav>
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <h2 className="text-xl font-semibold mb-4">Welcome, {user?.firstName}!</h2>
-        <form onSubmit={handleSubmit} className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="name">
-              Name
-            </label>
-            <input
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              id="name"
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleInputChange}
-              required
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="qualification">
-              Qualification
-            </label>
-            <select
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              id="qualification"
-              name="qualification"
-              value={formData.qualification}
-              onChange={handleInputChange}
-              required
-            >
-              <option value="">Select Qualification</option>
-              <option value="Certificate">Certificate</option>
-              <option value="Degree">Degree</option>
-              <option value="Masters">Masters</option>
-              <option value="PhD">PhD</option>
-            </select>
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="experience">
-              Experience
-            </label>
-            <select
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              id="experience"
-              name="experience"
-              value={formData.experience}
-              onChange={handleInputChange}
-              required
-            >
-              <option value="">Select Experience</option>
-              <option value="0-5 years">0-5 years</option>
-              <option value="6-10 years">6-10 years</option>
-              <option value="Above 10 years">Above 10 years</option>
-            </select>
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="publications">
-              Publications
-            </label>
-            <select
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              id="publications"
-              name="publications"
-              value={formData.publications}
-              onChange={handleInputChange}
-              required
-            >
-              <option value="">Select Publications</option>
-              <option value="1-3">1-3</option>
-              <option value="4-6">4-6</option>
-              <option value="Above 7">Above 7</option>
-            </select>
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2">Subjects (Choose 5 in order of priority)</label>
-            {formData.subjects.map((subject, index) => (
-              <input
-                key={index}
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline mb-2"
-                type="text"
-                placeholder={`Subject ${index + 1}`}
-                value={subject}
-                onChange={(e) => handleSubjectChange(index, e.target.value)}
-                required
-              />
-            ))}
-          </div>
-          <div className="flex items-center justify-between">
-            <button
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-              type="submit"
-            >
-              Save Profile
-            </button>
-          </div>
-        </form>
+        <Alert>
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Current Academic Period</AlertTitle>
+          <AlertDescription>
+            Year {currentSemester.year}, Semester {currentSemester.semester}
+          </AlertDescription>
+        </Alert>
+        <Card className="mt-8">
+          <CardHeader>
+            <CardTitle>Lecturer Profile</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="name">Name</Label>
+                <Input
+                  id="name"
+                  value={formData.name}
+                  onChange={(e) => handleInputChange("name", e.target.value)}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="qualification">Qualification</Label>
+                <Select
+                  value={formData.qualification}
+                  onValueChange={(value) => handleInputChange("qualification", value)}
+                >
+                  <SelectTrigger id="qualification">
+                    <SelectValue placeholder="Select Qualification" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Certificate">Certificate</SelectItem>
+                    <SelectItem value="Degree">Degree</SelectItem>
+                    <SelectItem value="Masters">Masters</SelectItem>
+                    <SelectItem value="PhD">PhD</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="experience">Experience</Label>
+                <Select
+                  value={formData.experience}
+                  onValueChange={(value) => handleInputChange("experience", value)}
+                >
+                  <SelectTrigger id="experience">
+                    <SelectValue placeholder="Select Experience" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="0-5 years">0-5 years</SelectItem>
+                    <SelectItem value="6-10 years">6-10 years</SelectItem>
+                    <SelectItem value="Above 10 years">Above 10 years</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="publications">Publications</Label>
+                <Select
+                  value={formData.publications}
+                  onValueChange={(value) => handleInputChange("publications", value)}
+                >
+                  <SelectTrigger id="publications">
+                    <SelectValue placeholder="Select Publications" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="1-3">1-3</SelectItem>
+                    <SelectItem value="4-6">4-6</SelectItem>
+                    <SelectItem value="Above 7">Above 7</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="subjects">Subjects (Choose up to 5 in order of priority)</Label>
+                <Select
+                  value={formData.subjects}
+                  onValueChange={handleSubjectChange}
+                  multiple
+                >
+                  <SelectTrigger id="subjects">
+                    <SelectValue placeholder="Select Subjects" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {subjects?.filter(subject => subject.year === currentSemester.year && subject.semester === currentSemester.semester).map((subject) => (
+                      <SelectItem key={subject._id} value={subject.name}>
+                        {subject.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-sm text-muted-foreground">Hold Ctrl (Windows) or Cmd (Mac) to select multiple subjects</p>
+              </div>
+              <Button type="submit">Save Profile</Button>
+            </form>
+          </CardContent>
+        </Card>
       </main>
     </div>
   );

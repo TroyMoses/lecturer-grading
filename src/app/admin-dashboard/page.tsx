@@ -4,159 +4,208 @@ import { UserButton } from "@clerk/nextjs";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Label } from "@/components/ui/label";
+import { PlusCircle } from 'lucide-react';
+import { useToast } from "@/components/ui/use-toast";
 import { Id } from "../../../convex/_generated/dataModel";
 
 export default function AdminDashboard() {
+  const { toast } = useToast();
   const lecturers = useQuery(api.lecturers.getAllLecturers);
   const subjects = useQuery(api.subjects.getAllSubjects);
-  const createSubject = useMutation(api.subjects.createSubject);
+  const createSubjects = useMutation(api.subjects.createSubjects);
   const assignSubject = useMutation(api.subjects.assignSubject);
 
-  const [newSubject, setNewSubject] = useState({
-    name: "",
-    year: 1,
-    semester: 1,
+  const [newSubjects, setNewSubjects] = useState({
+    year: "1",
+    semester: "1",
     department: "",
+    subjects: [""],
   });
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setNewSubject((prev) => ({ ...prev, [name]: name === "year" || name === "semester" ? parseInt(value) : value }));
+  const handleInputChange = (name: string, value: string) => {
+    setNewSubjects((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubjectChange = (index: number, value: string) => {
+    setNewSubjects((prev) => {
+      const newSubjectList = [...prev.subjects];
+      newSubjectList[index] = value;
+      return { ...prev, subjects: newSubjectList };
+    });
+  };
+
+  const addSubjectField = () => {
+    setNewSubjects((prev) => ({ ...prev, subjects: [...prev.subjects, ""] }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await createSubject(newSubject);
-    setNewSubject({ name: "", year: 1, semester: 1, department: "" });
-    alert("Subject added successfully!");
+    try {
+      await createSubjects({
+        ...newSubjects,
+        year: parseInt(newSubjects.year),
+        semester: parseInt(newSubjects.semester),
+      });
+      setNewSubjects({ year: "1", semester: "1", department: "", subjects: [""] });
+      toast({
+        title: "Subjects Added",
+        description: "The subjects have been successfully added.",
+      });
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to add subjects. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleAssign = async (lecturerId: Id<"lecturers">, subjectId: Id<"subjects">) => {
-    await assignSubject({ lecturerId, subjectId });
-    alert("Subject assigned successfully!");
+    try {
+      await assignSubject({ lecturerId, subjectId });
+      toast({
+        title: "Subject Assigned",
+        description: "The subject has been successfully assigned to the lecturer.",
+      });
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to assign subject. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <nav className="bg-white shadow-sm">
+    <div className="min-h-screen bg-background">
+      <nav className="border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
           <h1 className="text-2xl font-semibold">Admin Dashboard</h1>
           <UserButton afterSignOutUrl="/" />
         </div>
       </nav>
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <h2 className="text-xl font-semibold mb-4">Subject Management</h2>
-        <form onSubmit={handleSubmit} className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="name">
-              Subject Name
-            </label>
-            <input
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              id="name"
-              type="text"
-              name="name"
-              value={newSubject.name}
-              onChange={handleInputChange}
-              required
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="year">
-              Year
-            </label>
-            <select
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              id="year"
-              name="year"
-              value={newSubject.year}
-              onChange={handleInputChange}
-              required
-            >
-              <option value={1}>Year 1</option>
-              <option value={2}>Year 2</option>
-              <option value={3}>Year 3</option>
-            </select>
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="semester">
-              Semester
-            </label>
-            <select
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              id="semester"
-              name="semester"
-              value={newSubject.semester}
-              onChange={handleInputChange}
-              required
-            >
-              <option value={1}>Semester 1</option>
-              <option value={2}>Semester 2</option>
-            </select>
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="department">
-              Department
-            </label>
-            <input
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              id="department"
-              type="text"
-              name="department"
-              value={newSubject.department}
-              onChange={handleInputChange}
-              required
-            />
-          </div>
-          <div className="flex items-center justify-between">
-            <button
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-              type="submit"
-            >
-              Add Subject
-            </button>
-          </div>
-        </form>
+        <Card>
+          <CardHeader>
+            <CardTitle>Subject Management</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="year">Year</Label>
+                  <Select
+                    value={newSubjects.year}
+                    onValueChange={(value) => handleInputChange("year", value)}
+                  >
+                    <SelectTrigger id="year">
+                      <SelectValue placeholder="Select Year" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="1">Year 1</SelectItem>
+                      <SelectItem value="2">Year 2</SelectItem>
+                      <SelectItem value="3">Year 3</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="semester">Semester</Label>
+                  <Select
+                    value={newSubjects.semester}
+                    onValueChange={(value) => handleInputChange("semester", value)}
+                  >
+                    <SelectTrigger id="semester">
+                      <SelectValue placeholder="Select Semester" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="1">Semester 1</SelectItem>
+                      <SelectItem value="2">Semester 2</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="department">Department</Label>
+                  <Input
+                    id="department"
+                    value={newSubjects.department}
+                    onChange={(e) => handleInputChange("department", e.target.value)}
+                    required
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label>Subjects</Label>
+                {newSubjects.subjects.map((subject, index) => (
+                  <Input
+                    key={index}
+                    value={subject}
+                    onChange={(e) => handleSubjectChange(index, e.target.value)}
+                    placeholder={`Subject ${index + 1}`}
+                    required
+                  />
+                ))}
+                <Button type="button" variant="outline" onClick={addSubjectField}>
+                  <PlusCircle className="mr-2 h-4 w-4" />
+                  Add Another Subject
+                </Button>
+              </div>
+              <Button type="submit">Add Subjects</Button>
+            </form>
+          </CardContent>
+        </Card>
 
-        <h2 className="text-xl font-semibold mb-4">Lecturer Management</h2>
-        <div className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 overflow-x-auto">
-          <table className="min-w-full">
-            <thead>
-              <tr>
-                <th className="px-4 py-2">Name</th>
-                <th className="px-4 py-2">Qualification</th>
-                <th className="px-4 py-2">Experience</th>
-                <th className="px-4 py-2">Publications</th>
-                <th className="px-4 py-2">Average Weight</th>
-                <th className="px-4 py-2">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {lecturers?.map((lecturer) => (
-                <tr key={lecturer._id}>
-                  <td className="border px-4 py-2">{lecturer.name}</td>
-                  <td className="border px-4 py-2">{lecturer.qualification}</td>
-                  <td className="border px-4 py-2">{lecturer.experience}</td>
-                  <td className="border px-4 py-2">{lecturer.publications}</td>
-                  <td className="border px-4 py-2">{lecturer.averageWeight.toFixed(2)}</td>
-                  <td className="border px-4 py-2">
-                    <select title="Assign Subject"
-                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                      onChange={(e) => handleAssign(lecturer._id, e.target.value)}
-                    >
-                      <option value="">Assign Subject</option>
-                      {subjects?.map((subject) => (
-                        <option key={subject._id} value={subject._id}>
-                          {subject.name}
-                        </option>
-                      ))}
-                    </select>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <Card className="mt-8">
+          <CardHeader>
+            <CardTitle>Lecturer Management</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Qualification</TableHead>
+                  <TableHead>Experience</TableHead>
+                  <TableHead>Publications</TableHead>
+                  <TableHead>Average Weight</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {lecturers?.map((lecturer) => (
+                  <TableRow key={lecturer._id}>
+                    <TableCell>{lecturer.name}</TableCell>
+                    <TableCell>{lecturer.qualification}</TableCell>
+                    <TableCell>{lecturer.experience}</TableCell>
+                    <TableCell>{lecturer.publications}</TableCell>
+                    <TableCell>{lecturer.averageWeight.toFixed(2)}</TableCell>
+                    <TableCell>
+                      <Select onValueChange={(value) => handleAssign(lecturer._id, value)}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Assign Subject" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {subjects?.map((subject) => (
+                            <SelectItem key={subject._id} value={subject._id}>
+                              {subject.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
       </main>
     </div>
   );
