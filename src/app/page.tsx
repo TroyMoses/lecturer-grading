@@ -1,22 +1,32 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
-import {
-  SignedIn,
-  SignedOut,
-  SignInButton,
-  SignOutButton,
-} from "@clerk/nextjs";
+import { SignedIn, SignedOut, SignInButton, SignOutButton, useAuth } from "@clerk/nextjs";
+import Link from "next/link";
 
 export default function Home() {
+  const { userId } = useAuth();
+  console.log("UserId: ", userId);
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
+    <main className="flex min-h-screen flex-col items-center justify-center p-24">
+      <h1 className="text-4xl font-bold mb-8">Lecturer Grading System</h1>
       <SignedIn>
-        <SignOutButton />
+        <Button className="mb-2">
+          <Link href="/dashboard">Go to Dashboard</Link>
+        </Button>
+
+        <Button>
+          <SignOutButton>Sign Out</SignOutButton>
+        </Button>
+
       </SignedIn>
+
       <SignedOut>
-          <SignInButton>
-            <Button>Sign In</Button>
-          </SignInButton>
+        <Button>
+          <SignInButton>Sign In</SignInButton>
+        </Button>
       </SignedOut>
-    </div>
+    </main>
   );
 }
