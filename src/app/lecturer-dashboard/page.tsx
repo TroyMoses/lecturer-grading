@@ -27,7 +27,6 @@ export default function LecturerDashboard() {
     userId: user?.id ?? "",
   });
   const createLecturer = useMutation(api.lecturers.createLecturer);
-  const updateLecturer = useMutation(api.lecturers.updateLecturer);
   const subjects = useQuery(api.subjects.getAllSubjects, {});
 
   const [formData, setFormData] = useState({
