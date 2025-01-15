@@ -18,7 +18,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 export default function LecturerDashboard() {
   const { toast } = useToast();
@@ -118,7 +118,7 @@ export default function LecturerDashboard() {
       toast({
         title: "Profile Created",
         description: "Your profile has been successfully created.",
-        variant: "success",
+        variant: "default",
       });
 
       setFormData({
@@ -167,7 +167,6 @@ export default function LecturerDashboard() {
                 <Label htmlFor="name">Name</Label>
                 <Input
                   id="name"
-                  value={formData.name}
                   onChange={(e) => handleInputChange("name", e.target.value)}
                   required
                 />
@@ -175,7 +174,6 @@ export default function LecturerDashboard() {
               <div className="space-y-2">
                 <Label htmlFor="qualification">Qualification</Label>
                 <Select
-                  value={formData.qualification}
                   onValueChange={(value) =>
                     handleInputChange("qualification", value)
                   }
@@ -194,7 +192,6 @@ export default function LecturerDashboard() {
               <div className="space-y-2">
                 <Label htmlFor="experience">Experience</Label>
                 <Select
-                  value={formData.experience}
                   onValueChange={(value) =>
                     handleInputChange("experience", value)
                   }
@@ -214,7 +211,6 @@ export default function LecturerDashboard() {
               <div className="space-y-2">
                 <Label htmlFor="publications">Publications</Label>
                 <Select
-                  value={formData.publications}
                   onValueChange={(value) =>
                     handleInputChange("publications", value)
                   }
