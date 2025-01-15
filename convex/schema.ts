@@ -13,6 +13,7 @@ export default defineSchema({
     experience: v.string(),
     publications: v.string(),
     subjects: v.array(v.string()),
+    assignedSubjects: v.optional(v.array(v.string())),
     averageWeight: v.number(),
     userId: v.string(),
   }),

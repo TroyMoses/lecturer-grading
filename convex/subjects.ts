@@ -46,29 +46,59 @@ export const getSubjectsByYearAndSemester = query({
 export const assignSubject = mutation({
   args: {
     lecturerId: v.id("lecturers"),
-    subjectId: v.id("subjects"),
+    subjectName: v.string(),
   },
   handler: async (ctx, args) => {
     const lecturer = await ctx.db.get(args.lecturerId);
     if (!lecturer) {
       throw new Error("Lecturer not found");
     }
-    const subject = await ctx.db.get(args.subjectId);
+    // Check if the subject exists in the database
+    const subject = await ctx.db.query("subjects").filter((q) => q.eq(q.field("name"), args.subjectName)).first();
+
     if (!subject) {
       throw new Error("Subject not found");
     }
+
+    // Ensure `assignedSubjects` array exists
+    const assignedSubjects = lecturer.assignedSubjects || [];
     
-    // Check if the subject is already assigned to the lecturer
-    if (lecturer.subjects.includes(subject.name)) {
+    // Check if the subject is already assigned
+    if (assignedSubjects.includes(args.subjectName)) {
       throw new Error("Subject already assigned to this lecturer");
     }
     
-    // Add the subject to the lecturer's subjects array
-    await ctx.db.patch(args.lecturerId, {
-      subjects: [...lecturer.subjects, subject.name],
+     // Add the subject directly to the `assignedSubjects` array
+     await ctx.db.patch(args.lecturerId, {
+      assignedSubjects: [...assignedSubjects, args.subjectName],
     });
     
     return { success: true, message: `${subject.name} assigned to ${lecturer.name}` };
   },
 });
+
+export const unassignSubject = mutation({
+  args: {
+    lecturerId: v.id("lecturers"),
+    subjectName: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const lecturer = await ctx.db.get(args.lecturerId);
+    if (!lecturer) {
+      throw new Error("Lecturer not found");
+    }
+
+    // Ensure `assignedSubjects` array exists
+    const assignedSubjects = lecturer.assignedSubjects || [];
+
+    const updatedSubjects = assignedSubjects.filter(
+      (subject) => subject !== args.subjectName
+    );
+
+    await ctx.db.patch(args.lecturerId, { assignedSubjects: updatedSubjects });
+
+    return { success: true, message: `Subject "${args.subjectName}" unassigned.` };
+  },
+});
+
 

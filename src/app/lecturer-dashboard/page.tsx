@@ -167,7 +167,6 @@ export default function LecturerDashboard() {
                 <Label htmlFor="name">Name</Label>
                 <Input
                   id="name"
-                  value={formData.name}
                   onChange={(e) => handleInputChange("name", e.target.value)}
                   required
                 />
@@ -175,7 +174,6 @@ export default function LecturerDashboard() {
               <div className="space-y-2">
                 <Label htmlFor="qualification">Qualification</Label>
                 <Select
-                  value={formData.qualification}
                   onValueChange={(value) =>
                     handleInputChange("qualification", value)
                   }
@@ -194,7 +192,6 @@ export default function LecturerDashboard() {
               <div className="space-y-2">
                 <Label htmlFor="experience">Experience</Label>
                 <Select
-                  value={formData.experience}
                   onValueChange={(value) =>
                     handleInputChange("experience", value)
                   }
@@ -214,7 +211,6 @@ export default function LecturerDashboard() {
               <div className="space-y-2">
                 <Label htmlFor="publications">Publications</Label>
                 <Select
-                  value={formData.publications}
                   onValueChange={(value) =>
                     handleInputChange("publications", value)
                   }

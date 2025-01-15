@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import { UserButton } from "@clerk/nextjs";
 import { useQuery, useMutation } from "convex/react";
@@ -6,20 +6,33 @@ import { api } from "../../../convex/_generated/api";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Label } from "@/components/ui/label";
-import { PlusCircle } from 'lucide-react';
+import { PlusCircle } from "lucide-react";
 import { Id } from "../../../convex/_generated/dataModel";
 import { useToast } from "@/hooks/use-toast";
 
 export default function AdminDashboard() {
   const { toast } = useToast();
-  const lecturers = useQuery(api.lecturers.getAllLecturers,{});
-  const subjects = useQuery(api.subjects.getAllSubjects, {});
+  const lecturers = useQuery(api.lecturers.getAllLecturers, {});
   const createSubjects = useMutation(api.subjects.createSubjects);
   const assignSubject = useMutation(api.subjects.assignSubject);
+  const unassignSubject = useMutation(api.subjects.unassignSubject);
 
   const [newSubjects, setNewSubjects] = useState({
     year: "1",
@@ -52,13 +65,18 @@ export default function AdminDashboard() {
         year: parseInt(newSubjects.year),
         semester: parseInt(newSubjects.semester),
       });
-      setNewSubjects({ year: "1", semester: "1", department: "", subjects: [""] });
+      setNewSubjects({
+        year: "1",
+        semester: "1",
+        department: "",
+        subjects: [""],
+      });
       toast({
         title: "Subjects Added",
         description: "The subjects have been successfully added.",
         variant: "default",
       });
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       toast({
         title: "Error",
@@ -68,14 +86,18 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleAssign = async (lecturerId: Id<"lecturers">, subjectId: Id<"subjects">) => {
+  const handleAssign = async (
+    lecturerId: Id<"lecturers">,
+    subjectName: string
+  ) => {
     try {
-      await assignSubject({ lecturerId, subjectId });
+      await assignSubject({ lecturerId, subjectName });
       toast({
         title: "Subject Assigned",
-        description: "The subject has been successfully assigned to the lecturer.",
+        description:
+          "The subject has been successfully assigned to the lecturer.",
       });
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       toast({
         title: "Error",
@@ -84,6 +106,24 @@ export default function AdminDashboard() {
       });
     }
   };
+
+  const handleUnassign = async (lecturerId: Id<"lecturers">, subjectName: string) => {
+    try {
+      await unassignSubject({ lecturerId, subjectName });
+      toast({
+        title: "Subject Unassigned",
+        description: `The subject "${subjectName}" has been unassigned.`,
+      });
+    } catch (error) {
+      console.error("Error unassigning subject:", error);
+      toast({
+        title: "Error",
+        description: "Failed to unassign subject. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+  
 
   return (
     <div className="min-h-screen bg-background">
@@ -121,7 +161,9 @@ export default function AdminDashboard() {
                   <Label htmlFor="semester">Semester</Label>
                   <Select
                     value={newSubjects.semester}
-                    onValueChange={(value) => handleInputChange("semester", value)}
+                    onValueChange={(value) =>
+                      handleInputChange("semester", value)
+                    }
                   >
                     <SelectTrigger id="semester">
                       <SelectValue placeholder="Select Semester" />
@@ -137,7 +179,9 @@ export default function AdminDashboard() {
                   <Input
                     id="department"
                     value={newSubjects.department}
-                    onChange={(e) => handleInputChange("department", e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("department", e.target.value)
+                    }
                     required
                   />
                 </div>
@@ -153,7 +197,11 @@ export default function AdminDashboard() {
                     required
                   />
                 ))}
-                <Button type="button" variant="outline" onClick={addSubjectField}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={addSubjectField}
+                >
                   <PlusCircle className="mr-2 h-4 w-4" />
                   Add Another Subject
                 </Button>
@@ -176,33 +224,84 @@ export default function AdminDashboard() {
                   <TableHead>Experience</TableHead>
                   <TableHead>Publications</TableHead>
                   <TableHead>Average Weight</TableHead>
+                  <TableHead>Assigned Subjects</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {lecturers?.map((lecturer) => (
-                  <TableRow key={lecturer._id}>
-                    <TableCell>{lecturer.name}</TableCell>
-                    <TableCell>{lecturer.qualification}</TableCell>
-                    <TableCell>{lecturer.experience}</TableCell>
-                    <TableCell>{lecturer.publications}</TableCell>
-                    <TableCell>{lecturer.averageWeight.toFixed(2)}</TableCell>
-                    <TableCell>
-                      <Select onValueChange={(value) => handleAssign(lecturer._id, value as Id<"subjects">)}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Assign Subject" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {subjects?.map((subject) => (
-                            <SelectItem key={subject._id} value={subject._id}>
-                              {subject.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {lecturers?.map((lecturer) => {
+                  // Filter subjects that are not already assigned
+                  const unassignedSubjects = lecturer.subjects?.filter(
+                    (subject) => !lecturer.assignedSubjects?.includes(subject)
+                  );
+
+                  return (
+                    <TableRow key={lecturer._id}>
+                      <TableCell>{lecturer.name}</TableCell>
+                      <TableCell>{lecturer.qualification}</TableCell>
+                      <TableCell>{lecturer.experience}</TableCell>
+                      <TableCell>{lecturer.publications}</TableCell>
+                      <TableCell>{lecturer.averageWeight.toFixed(2)}</TableCell>
+                      {/* Display Assigned Subjects */}
+                      <TableCell>
+                        {lecturer.assignedSubjects &&
+                        lecturer.assignedSubjects.length > 0 ? (
+                          <Select
+                            onValueChange={
+                              (value) => handleUnassign(lecturer._id, value) // Trigger unassign mutation
+                            }
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Assigned Subjects" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {lecturer.assignedSubjects.map(
+                                (subject, index) => (
+                                  <SelectItem key={index} value={subject}>
+                                    {subject}
+                                  </SelectItem>
+                                )
+                              )}
+                            </SelectContent>
+                          </Select>
+                        ) : (
+                          <span className="text-muted-foreground">
+                            No subjects assigned
+                          </span>
+                        )}
+                      </TableCell>
+
+                      {/* Actions: Dropdown to Assign Subjects */}
+                      <TableCell>
+                        {unassignedSubjects && unassignedSubjects.length > 0 ? (
+                          <Select
+                            onValueChange={
+                              (value) => handleAssign(lecturer._id, value) // Pass subject name
+                            }
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Assign Subject" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {unassignedSubjects.map((subjectName) => (
+                                <SelectItem
+                                  key={subjectName}
+                                  value={subjectName}
+                                >
+                                  {subjectName}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        ) : (
+                          <span className="text-muted-foreground">
+                            No subjects to assign
+                          </span>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           </CardContent>
@@ -211,4 +310,3 @@ export default function AdminDashboard() {
     </div>
   );
 }
-

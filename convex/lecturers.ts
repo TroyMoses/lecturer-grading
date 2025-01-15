@@ -24,6 +24,7 @@ export const createLecturer = mutation({
     experience: v.string(),
     publications: v.string(),
     subjects: v.array(v.string()),
+    assignedSubjects: v.optional(v.array(v.string())),
     userId: v.string(),
   },
   handler: async (ctx, args) => {
@@ -40,6 +41,7 @@ export const updateLecturer = mutation({
     experience: v.string(),
     publications: v.string(),
     subjects: v.array(v.string()),
+    assignedSubjects: v.optional(v.array(v.string())),
   },
   handler: async (ctx, args) => {
     const averageWeight = calculateAverageWeight(args.qualification, args.experience, args.publications);
