@@ -30,6 +30,7 @@ import { useToast } from "@/hooks/use-toast";
 export default function AdminDashboard() {
   const { toast } = useToast();
   const lecturers = useQuery(api.lecturers.getAllLecturers, {});
+  const sortedLecturers = lecturers?.sort((a, b) => b.averageWeight - a.averageWeight);
   const createSubjects = useMutation(api.subjects.createSubjects);
   const assignSubject = useMutation(api.subjects.assignSubject);
   const unassignSubject = useMutation(api.subjects.unassignSubject);
@@ -229,7 +230,7 @@ export default function AdminDashboard() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {lecturers?.map((lecturer) => {
+                {sortedLecturers?.map((lecturer) => {
                   // Filter subjects that are not already assigned
                   const unassignedSubjects = lecturer.subjects?.filter(
                     (subject) => !lecturer.assignedSubjects?.includes(subject)
